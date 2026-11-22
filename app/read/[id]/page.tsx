@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 const OfficialPdfViewer = dynamic(() => import('@/components/OfficialPdfViewer'), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center bg-[#F8FAFC] text-sm text-slate-500">
+    <div className="flex h-full w-full items-center justify-center bg-[#262626] text-sm text-slate-200">
       লোড হচ্ছে...
     </div>
   ),
@@ -21,7 +21,7 @@ export default function ReadPage({ params }: { params: Promise<{ id: string }> }
   const pdfUrl = `/api/books/${id}/file`;
 
   return (
-    <div className="flex flex-col w-full h-screen bg-[#F8FAFC]">
+    <div className="flex flex-col w-full h-screen bg-[#262626]">
       {/* টপ বার */}
       <header className="flex items-center justify-between px-4 py-2.5 bg-white border-b border-slate-200 z-20">
         <div className="text-sm font-semibold text-slate-900">

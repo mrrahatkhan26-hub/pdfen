@@ -148,9 +148,9 @@ export default function OfficialPdfViewer({
   }, [zoom, totalPages]);
 
   return (
-    <div className="relative w-full h-full bg-[#F8FAFC] overflow-hidden">
+    <div className="relative w-full h-full bg-[#262626] overflow-hidden">
       {isLoading && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#F8FAFC] text-slate-600 text-sm">
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#262626] text-slate-200 text-sm">
           লোড হচ্ছে...
         </div>
       )}
@@ -158,7 +158,7 @@ export default function OfficialPdfViewer({
       {/* অফিসিয়াল PDFViewer-এর জন্য position: absolute কন্টেইনার বাধ্যতামূলক */}
       <div
         ref={containerRef}
-        className="absolute inset-0 overflow-auto px-3 pt-4 pb-28"
+        className="absolute inset-0 overflow-auto px-3 pt-4 pb-28 bg-[#262626]"
       >
         <div id="viewer" className="pdfViewer" />
       </div>

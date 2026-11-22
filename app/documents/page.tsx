@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { PdfDocumentRecord } from "@/lib/types";
 import { FileText, Trash2, Edit3, Upload, LogOut } from "lucide-react";
+import UploadPdfModal from "@/components/UploadPdfModal";
+import { UploadPdfResult } from "@/lib/uploadPdf";
 
 export default function DocumentsPage() {
   const router = useRouter();
@@ -12,7 +14,7 @@ export default function DocumentsPage() {
 
   const [docs, setDocs] = useState<PdfDocumentRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const loadDocs = async () => {
     setLoading(true);
@@ -41,22 +43,17 @@ export default function DocumentsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
+  const handleAfterUpload = async (
+    result: UploadPdfResult & { originalFile: File }
+  ) => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) {
-      setUploading(false);
-      return;
-    }
+    if (!user) return;
 
     let pageCount = 1;
     try {
-      const buffer = await file.arrayBuffer();
+      const buffer = await result.originalFile.arrayBuffer();
       const pdfjsLib = await import("pdfjs-dist");
       if (typeof window !== "undefined") {
         pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -67,27 +64,17 @@ export default function DocumentsPage() {
       // Fallback to 1 if page count reading fails
     }
 
-    const cleanName = file.name.replace(/[^\w.-]/g, "_");
-    const storagePath = `${user.id}/${Date.now()}_${cleanName}`;
+    await supabase.from("pdf_documents").insert({
+      user_id: user.id,
+      title: result.originalFile.name.replace(/\.pdf$/i, ""),
+      storage_path: result.filePath,
+      file_size_bytes: result.originalFile.size,
+      page_count: pageCount,
+      last_page: 1,
+      annotations: [],
+    });
 
-    const { error: uploadError } = await supabase.storage
-      .from("pdfs")
-      .upload(storagePath, file, { contentType: "application/pdf" });
-
-    if (!uploadError) {
-      await supabase.from("pdf_documents").insert({
-        user_id: user.id,
-        title: file.name.replace(/\.pdf$/i, ""),
-        storage_path: storagePath,
-        file_size_bytes: file.size,
-        page_count: pageCount,
-        last_page: 1,
-        annotations: [],
-      });
-      await loadDocs();
-    }
-    setUploading(false);
-    e.target.value = "";
+    await loadDocs();
   };
 
   const handleRename = async (doc: PdfDocumentRecord) => {
@@ -124,21 +111,18 @@ export default function DocumentsPage() {
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <h1 className="text-lg font-bold text-slate-900">PDF Notes — Library</h1>
           <div className="flex items-center gap-2">
-            <label className="flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-1.5 text-xs font-semibold text-slate-950 hover:bg-amber-400">
+            <button
+              type="button"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-400 transition-colors"
+            >
               <Upload className="h-4 w-4" />
-              <span>{uploading ? "Uploading..." : "Upload PDF"}</span>
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={handleUpload}
-                disabled={uploading}
-                className="hidden"
-              />
-            </label>
+              <span>Upload PDF</span>
+            </button>
             <button
               type="button"
               onClick={handleSignOut}
-              className="rounded-xl border border-slate-300 p-2 text-slate-700 hover:bg-slate-100"
+              className="rounded-xl border border-slate-300 p-2 text-slate-700 hover:bg-slate-100 transition-colors"
               title="Sign Out"
             >
               <LogOut className="h-4 w-4" />
@@ -152,7 +136,15 @@ export default function DocumentsPage() {
           <p className="text-sm text-slate-500">লোড হচ্ছে...</p>
         ) : docs.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
-            <p className="text-sm text-slate-600">এখনো কোনো PDF আপলোড করা হয়নি।</p>
+            <p className="text-sm text-slate-600 mb-4">এখনো কোনো PDF আপলোড করা হয়নি।</p>
+            <button
+              type="button"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-400 transition-colors"
+            >
+              <Upload className="h-4 w-4" />
+              <span>প্রথম PDF আপলোড করুন</span>
+            </button>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
@@ -210,6 +202,13 @@ export default function DocumentsPage() {
           </div>
         )}
       </section>
+
+      {/* Drag & Drop + PC পিকার আপলোড মোডাল */}
+      <UploadPdfModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUploaded={handleAfterUpload}
+      />
     </main>
   );
 }
