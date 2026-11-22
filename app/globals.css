@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* =====================================================
+   TextLayer — PDF Editor (PdfEditorCanvas) ও
+   OfficialPdfViewer উভয়ের জন্য shared বেস স্টাইল।
+   pdfjs-dist TextLayer এর span গুলো absolute,
+   তাই কন্টেইনারে overflow: hidden দরকার।
+   ===================================================== */
+.textLayer {
+  position: absolute !important;
+  inset: 0 !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  mix-blend-mode: multiply;
+}
+
+.textLayer span,
+.textLayer br {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  cursor: text !important;
+  white-space: pre !important;
+}
+
+.textLayer span::selection,
+.textLayer ::selection {
+  background: rgba(37, 99, 235, 0.28) !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* =====================================================
+   OfficialPdfViewer — পেজ কার্ড স্টাইল
+   ===================================================== */
+.pdfViewer .page {
+  margin: 0 auto 16px auto !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  background-color: #ffffff !important;
+  position: relative !important;
+}
+
+/* =====================================================
+   OfficialPdfViewer — Canvas: pointer-events বন্ধ।
+   মাউস সরাসরি textLayer-এ পৌঁছাবে।
+   "Save image as..." রাইট-ক্লিক মেনু বন্ধ।
+   ===================================================== */
+.pdfViewer .canvasWrapper {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.pdfViewer .canvasWrapper canvas {
+  display: block;
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* =====================================================
+   OfficialPdfViewer — TextLayer: ক্যানভাসের উপরে।
+   বাংলা ও আরবি টেক্সট Firefox-এর মতো সিলেক্ট হবে।
+   ===================================================== */
+.pdfViewer .textLayer {
+  z-index: 10 !important;
+  pointer-events: auto !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  opacity: 1 !important;
+  cursor: text !important;
+}
+
+/* =====================================================
+   OfficialPdfViewer — Annotation Layer
+   ===================================================== */
+.pdfViewer .annotationLayer {
+  z-index: 15 !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+}
+
+.pdfViewer .annotationLayer a,
+.pdfViewer .annotationLayer .linkAnnotation > a {
+  pointer-events: auto !important;
+}
