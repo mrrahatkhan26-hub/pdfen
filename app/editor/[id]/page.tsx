@@ -10,7 +10,7 @@ import { getCachedPdf, saveCachedPdf } from "@/lib/pdfCache";
 const PdfEditorCanvas = dynamic(() => import("@/components/PdfEditorCanvas"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-screen items-center justify-center bg-[#F8FAFC] text-sm text-slate-500">
+    <div className="flex h-screen items-center justify-center bg-[#262626] text-sm text-slate-300">
       PDF এডিটর লোড হচ্ছে...
     </div>
   ),
@@ -96,7 +96,7 @@ export default function EditorPage() {
 
   if (errorMsg) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#F8FAFC] p-4 text-sm text-red-600">
+      <div className="flex h-screen items-center justify-center bg-[#262626] p-4 text-sm text-red-400">
         {errorMsg}
       </div>
     );
@@ -104,7 +104,7 @@ export default function EditorPage() {
 
   if (!doc || !pdfBlob) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#F8FAFC] text-sm text-slate-500">
+      <div className="flex h-screen items-center justify-center bg-[#262626] text-sm text-slate-300">
         PDF লোড হচ্ছে...
       </div>
     );

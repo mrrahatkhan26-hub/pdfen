@@ -617,7 +617,7 @@ export default function PdfEditorCanvas({
   const measureStyle = editingItem ? editingItem.style : activeTextStyle;
 
   return (
-    <div className="relative flex h-screen w-screen flex-col bg-[#F5F2EB] text-stone-900 select-none">
+    <div className="relative flex h-screen w-screen flex-col bg-[#262626] text-slate-100 select-none">
       {/* Hidden text width measurer */}
       <span
         ref={measureRef}
@@ -700,9 +700,9 @@ export default function PdfEditorCanvas({
         ref={scrollContainerRef}
         onScroll={handleScroll}
         onWheel={handleWheel}
-        className="relative flex-1 overflow-auto px-2 py-4 touch-pan-x touch-pan-y"
+        className="relative flex-1 overflow-auto px-2 py-4 touch-pan-x touch-pan-y bg-[#262626]"
       >
-        <div className="mx-auto flex flex-col items-center gap-4">
+        <div className="mx-auto flex flex-col items-center gap-4 bg-[#262626]">
           {Array.from({ length: pageCount }, (_, idx) => idx + 1).map((pageNum) => {
             const pageTexts = annotations.filter(
               (a): a is TextAnnotation => a.type === "text" && a.page === pageNum
@@ -718,7 +718,7 @@ export default function PdfEditorCanvas({
                 onPointerDown={(e) => handlePointerDown(pageNum, e)}
                 onPointerMove={(e) => handlePointerMove(pageNum, e)}
                 onPointerUp={() => handlePointerUp(pageNum)}
-                className={`relative bg-white shadow-md ${isDrawingTool ? "touch-none" : ""}`}
+                className={`relative bg-white shadow-2xl ${isDrawingTool ? "touch-none" : ""}`}
               >
                 {/* ফিক্স ২: হাই-ডিপিআই PDF ক্যানভাস — pointer-events-none যাতে select টুলে টেক্সট সিলেক্ট হয় */}
                 <canvas
